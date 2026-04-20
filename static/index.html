@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Task</title>
+    <style>
+      body { font-family: Inter, system-ui, sans-serif; margin: 0; background:#0f172a; color:#e5e7eb; }
+      .app { max-width: 980px; margin: 24px auto; padding: 16px; }
+      .grid { display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+      .card { background:#111827; border:1px solid #1f2937; border-radius:12px; padding:14px; }
+      input,button,textarea { width:100%; margin:6px 0; padding:10px; border-radius:8px; border:1px solid #374151; background:#0b1220; color:#e5e7eb; }
+      button { cursor:pointer; background:#2563eb; border-color:#2563eb; }
+      #messages { height:280px; overflow:auto; background:#0b1220; border-radius:8px; padding:8px; }
+      .hint { color:#9ca3af; font-size:13px; }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <h1>Task</h1>
+      <p class="hint">Прототип: PostgreSQL-хранилище, JWT+refresh, каналы/DM, файлы, push-заглушка, E2E-ready (ciphertext+nonce).</p>
+
+      <section class="grid">
+        <article class="card">
+          <h3>1) Регистрация / логин</h3>
+          <input id="username" placeholder="username" value="alice" />
+          <input id="password" placeholder="password" type="password" value="password123" />
+          <button id="registerBtn">Register</button>
+          <button id="loginBtn">Login</button>
+          <textarea id="tokens" rows="4" readonly></textarea>
+        </article>
+
+        <article class="card">
+          <h3>2) Канал</h3>
+          <input id="group" placeholder="group" value="engineering" />
+          <input id="topic" placeholder="topic" value="backend" />
+          <input id="channelName" placeholder="channel name" value="Eng Backlog" />
+          <button id="createChannelBtn">Create Channel</button>
+          <input id="conversationId" placeholder="conversation id" />
+        </article>
+      </section>
+
+      <section class="card" style="margin-top:16px">
+        <h3>3) WebSocket (E2E payload)</h3>
+        <button id="connectBtn">Connect WS</button>
+        <textarea id="ciphertext" rows="2" placeholder="ciphertext (пример: base64(...) )"></textarea>
+        <input id="nonce" placeholder="nonce (optional)" />
+        <button id="sendBtn">Send Encrypted Message</button>
+        <div id="messages"></div>
+      </section>
+    </main>
+
+    <script>
+      let accessToken = "";
+      let refreshToken = "";
+      let socket = null;
+
+      const $ = (id) => document.getElementById(id);
+
+      function log(msg) {
+        const el = document.createElement("div");
+        el.textContent = typeof msg === "string" ? msg : JSON.stringify(msg);
+        $("messages").appendChild(el);
+        $("messages").scrollTop = $("messages").scrollHeight;
+      }
+
+      async function api(path, method = "GET", body) {
+        const headers = { "Content-Type": "application/json" };
+        if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
+        const res = await fetch(path, { method, headers, body: body ? JSON.stringify(body) : undefined });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Request failed");
+        return data;
+      }
+
+      $("registerBtn").onclick = async () => {
+        try {
+          const data = await api("/auth/register", "POST", { username: $("username").value, password: $("password").value });
+          accessToken = data.access_token;
+          refreshToken = data.refresh_token;
+          $("tokens").value = JSON.stringify(data, null, 2);
+        } catch (e) { log(e.message); }
+      };
+
+      $("loginBtn").onclick = async () => {
+        try {
+          const data = await api("/auth/login", "POST", { username: $("username").value, password: $("password").value });
+          accessToken = data.access_token;
+          refreshToken = data.refresh_token;
+          $("tokens").value = JSON.stringify(data, null, 2);
+        } catch (e) { log(e.message); }
+      };
+
+      $("createChannelBtn").onclick = async () => {
+        try {
+          const data = await api("/channels", "POST", {
+            group_name: $("group").value,
+            topic: $("topic").value,
+            name: $("channelName").value,
+          });
+          $("conversationId").value = data.conversation_id;
+          log(data);
+        } catch (e) { log(e.message); }
+      };
+
+      $("connectBtn").onclick = () => {
+        const id = $("conversationId").value.trim();
+        if (!id || !accessToken) return log("Need conversation_id + login");
+        const protocol = location.protocol === "https:" ? "wss" : "ws";
+        socket = new WebSocket(`${protocol}://${location.host}/ws/${id}?token=${encodeURIComponent(accessToken)}`);
+        socket.onmessage = (e) => log(JSON.parse(e.data));
+        socket.onopen = () => log("WS connected");
+        socket.onclose = () => log("WS closed");
+      };
+
+      $("sendBtn").onclick = () => {
+        if (!socket || socket.readyState !== WebSocket.OPEN) return log("WS is not connected");
+        socket.send(JSON.stringify({
+          ciphertext: $("ciphertext").value || "example-encrypted-payload",
+          nonce: $("nonce").value || null,
+        }));
+      };
+    </script>
+  </body>
+</html>
