@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pandoroom — Личный кабинет</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0f12;
+      --card: #1b1f25;
+      --card-soft: #222730;
+      --white: #fff;
+      --muted: #9ea4ae;
+      --line: #343a44;
+      --green: #97c600;
+      --pink: #d100ac;
+      --danger: #d60000;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      background: radial-gradient(circle at 50% -20%, #282c34 0%, #111319 55%, #090a0d 100%);
+      color: var(--white);
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+      padding: 20px 8px;
+    }
+
+    .app {
+      width: 375px;
+      border-radius: 24px;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(10, 12, 16, .9), rgba(12, 14, 18, .96)),
+        url('https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=900&q=80') center/cover;
+      box-shadow: 0 30px 70px rgba(0, 0, 0, .6);
+    }
+
+    .inner { padding: 12px 10px 18px; }
+
+    .top {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: url('https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=120&q=80') center/cover;
+      flex: 0 0 auto;
+    }
+
+    .top-title {
+      line-height: 1.15;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 14px;
+      margin: 8px 0 14px;
+      font-size: 9px;
+      font-weight: 600;
+    }
+
+    .tabs span { color: #5f6670; }
+    .tabs .on { color: var(--green); }
+
+    .profile {
+      background: var(--green);
+      color: #142000;
+      border-radius: 14px;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .profile h2 {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.2;
+    }
+
+    .profile .small {
+      font-size: 10px;
+      margin-top: 3px;
+      opacity: .7;
+    }
+
+    .passport {
+      width: 100px;
+      background: rgba(116, 148, 10, .55);
+      border-radius: 10px;
+      padding: 8px;
+      font-size: 8px;
+      color: #e9f2cc;
+      align-self: center;
+    }
+
+    .passport .lvl { margin: 5px 0; font-size: 10px; }
+    .dots { display: flex; gap: 3px; }
+    .dots i { width: 8px; height: 8px; border-radius: 50%; background: #7da300; display: block; }
+    .dots i.on { background: #fff; }
+
+    .card {
+      background: rgba(22, 25, 31, .92);
+      border-radius: 12px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .card h3 { margin: 0 0 8px; font-size: 14px; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .stat {
+      background: #2a3039;
+      border-radius: 8px;
+      padding: 6px;
+      min-height: 38px;
+    }
+
+    .stat b { display: block; font-size: 10px; color: #e6eaf0; }
+    .stat span { font-size: 8px; color: #9fa6b2; }
+
+    .title {
+      margin: 16px 0 6px;
+      font-size: 24px; /* requested */
+      line-height: 1.1;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .subtitle {
+      margin: 0 0 10px;
+      font-size: 18px; /* requested */
+      line-height: 1.25;
+      color: #fff;
+    }
+
+    .quest {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+      align-items: start;
+    }
+
+    .poster {
+      width: 72px;
+      height: 98px;
+      border-radius: 10px;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .hp { background-image: url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=180&q=80'); }
+    .pirates { background-image: url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=180&q=80'); }
+
+    .chips { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 4px; }
+    .chip {
+      font-size: 7px;
+      border-radius: 4px;
+      padding: 2px 6px;
+      background: var(--green);
+      color: #0f1600;
+      font-weight: 600;
+    }
+    .chip.red { background: var(--danger); color: #fff; }
+
+    .q-name { font-size: 10px; line-height: 1.2; margin: 2px 0 6px; }
+    .meta { font-size: 7px; color: #9ca3af; display: flex; gap: 8px; flex-wrap: wrap; }
+    .rate { color: var(--green); font-weight: 800; font-size: 12px; }
+
+    .line { border-top: 1px solid var(--line); margin: 8px 0; }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .field label,
+    .section-label {
+      display: block;
+      font-size: 8px;
+      color: #9ca4b0;
+      margin-bottom: 4px;
+    }
+
+    input, select {
+      width: 100%;
+      height: 24px;
+      border: 0;
+      border-radius: 6px;
+      background: #fff;
+      color: #111;
+      font-family: inherit;
+      font-size: 10px;
+      padding: 0 8px;
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin: 10px 0;
+    }
+
+    .pick {
+      background: #2a3039;
+      border-radius: 8px;
+      padding: 5px;
+      text-align: center;
+      font-size: 8px;
+    }
+
+    .pick img {
+      width: 100%;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-bottom: 4px;
+    }
+
+    .btn {
+      width: 100%;
+      border: 0;
+      height: 24px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      font-family: inherit;
+      color: #fff;
+      background: var(--pink);
+      margin-top: 8px;
+    }
+
+    .btn.green {
+      background: var(--green);
+      color: #1b2500;
+      margin-top: 6px;
+    }
+
+    .total p {
+      margin: 2px 0;
+      font-size: 8px;
+      color: #c1c7d0;
+    }
+
+    .total h4 {
+      margin: 0 0 8px;
+      font-size: 24px;
+    }
+
+    .muted-note { font-size: 7px; color: #787f8c; text-align: center; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="inner">
+      <header class="top">
+        <div class="avatar" aria-hidden="true"></div>
+        <div class="top-title">Личный кабинет<br>Pandoroom</div>
+      </header>
+
+      <nav class="tabs">
+        <span>Квесты</span><span class="on">Праздники</span><span class="on">Подарки</span><span class="on">Паспорт</span>
+      </nav>
+
+      <section class="profile">
+        <div>
+          <h2>Константинов<br>Константин</h2>
+          <div class="small">+7 984 189 18 95</div>
+          <div class="small">Бонусы: <b>8 ₽</b></div>
+        </div>
+        <aside class="passport">
+          Паспорт игрока
+          <div class="lvl">Уровень <b>7 / 12</b></div>
+          <div class="dots"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div>
+        </aside>
+      </section>
+
+      <section class="card">
+        <h3>Ваша статистика</h3>
+        <div class="stats">
+          <div class="stat"><b>8 Р</b><span>Бонусы</span></div>
+          <div class="stat"><b>7</b><span>Уровень</span></div>
+          <div class="stat"><b>0.0</b><span>Рейтинг</span></div>
+          <div class="stat"><b>12</b><span>Прогрессы</span></div>
+          <div class="stat"><b>7</b><span>Пройдено</span></div>
+          <div class="stat"><b>0</b><span>Годовщин</span></div>
+        </div>
+      </section>
+
+      <h2 class="title">Мои квесты</h2>
+      <p class="subtitle">Все прошедшие и предстоящие игры по вашему номеру телефона</p>
+
+      <article class="quest">
+        <div class="poster hp"></div>
+        <div>
+          <div class="chips"><span class="chip">29.11.2025</span><span class="chip">22:40</span><span class="chip red">Без аниматора</span></div>
+          <div class="q-name">Гарри Поттер<br>и философский камень</div>
+          <div class="meta"><span class="rate">0000</span><span>60 минут</span><span>2-6 игроков</span><span>12+</span></div>
+        </div>
+      </article>
+
+      <article class="quest">
+        <div class="poster pirates"></div>
+        <div>
+          <div class="chips"><span class="chip">29.11.2025</span><span class="chip">22:40</span><span class="chip">С аниматором</span></div>
+          <div class="q-name">Сокровища пиратов</div>
+          <div class="meta"><span class="rate">0000</span><span>60 минут</span><span>2-6 игроков</span><span>12+</span></div>
+        </div>
+      </article>
+
+      <section class="card">
+        <h3>Новый праздник</h3>
+        <p class="subtitle" style="font-size:9px; color:#c4cad3; margin-bottom:8px;">Шаг 1 из 4: Дата и гости</p>
+        <div class="row">
+          <div class="field"><label>Имя ребенка</label><input value="Константин"></div>
+          <div class="field"><label>Возраст</label><input value="12"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Дата</label><input value="25.07.2026"></div>
+          <div class="field"><label>Время</label><input value="13:00"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Взрослые</label><input value="4"></div>
+          <div class="field"><label>Дети</label><input value="12"></div>
+        </div>
+        <button class="btn">Дальше — шаг 2</button>
+      </section>
+
+      <section class="card total">
+        <h4>Итого</h4>
+        <p>25.07.2026 · 13:00</p>
+        <p>Константин (12 лет)</p>
+        <p>Гостей: 16</p>
+        <p>Сумма: 12 000 ₽</p>
+      </section>
+
+      <section class="card">
+        <h3>Новый праздник</h3>
+        <p class="subtitle" style="font-size:9px; color:#c4cad3; margin-bottom:8px;">Шаг 2 из 4: Выбор стола</p>
+        <div class="line"></div>
+        <div class="pick"><img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=300&q=80" alt="стол">От 7 000 ₽</div>
+        <button class="btn green">Выбрать этот стол</button>
+        <button class="btn">Дальше — шаг 3: выбрать квест</button>
+        <div class="muted-note">* не приступим мы к шагу позже</div>
+      </section>
+
+      <section class="card total">
+        <h4>Итого</h4>
+        <p>25.07.2026 · 13:00</p>
+        <p>Стол: Party Hall</p>
+        <p>Сумма: 12 000 ₽</p>
+      </section>
+
+      <section class="card">
+        <h3>Новый праздник</h3>
+        <p class="subtitle" style="font-size:9px; color:#c4cad3; margin-bottom:8px;">Шаг 3 из 4: Выбор квеста</p>
+        <div class="mini-grid">
+          <div class="pick"><img src="https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?auto=format&fit=crop&w=300&q=80" alt="quest1">Умный Лоток</div>
+          <div class="pick"><img src="https://images.unsplash.com/photo-1513106580091-1d82408b8cd6?auto=format&fit=crop&w=300&q=80" alt="quest2">Resident Evil</div>
+          <div class="pick"><img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=300&q=80" alt="quest3">Пираты</div>
+        </div>
+        <button class="btn green">Выбрать этот квест</button>
+        <button class="btn">Дальше — шаг 4: выбрать торт</button>
+      </section>
+
+      <section class="card total">
+        <h4>Итого</h4>
+        <p>Квест: Гарри Поттер</p>
+        <p>Стол: Party Hall</p>
+        <p>Сумма: 13 000 ₽</p>
+      </section>
+
+      <section class="card">
+        <h3>Новый праздник</h3>
+        <p class="subtitle" style="font-size:9px; color:#c4cad3; margin-bottom:8px;">Шаг 4 из 4: Можно и тортик</p>
+        <div class="chips" style="margin-bottom:8px;">
+          <span class="chip">Торты</span><span class="chip">Шоу</span><span class="chip">Украшения</span><span class="chip">Салют</span><span class="chip">Горячее</span>
+        </div>
+        <div class="mini-grid" style="grid-template-columns: repeat(2, 1fr);">
+          <div class="pick"><img src="https://images.unsplash.com/photo-1535141192574-5d4897c12636?auto=format&fit=crop&w=300&q=80" alt="cake1">от 3 100 ₽</div>
+          <div class="pick"><img src="https://images.unsplash.com/photo-1559620192-032c4bc4674e?auto=format&fit=crop&w=300&q=80" alt="cake2">от 3 000 ₽</div>
+          <div class="pick"><img src="https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?auto=format&fit=crop&w=300&q=80" alt="cake3">от 2 800 ₽</div>
+          <div class="pick"><img src="https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=300&q=80" alt="cake4">от 3 000 ₽</div>
+        </div>
+        <button class="btn">Отправить заявку на праздник</button>
+        <div class="muted-note">* не приступим мы к шагу позже</div>
+      </section>
+
+      <section class="card total">
+        <h4>Итого</h4>
+        <p>Имя: Константин (12 лет) · 25.07.2026 · 13:30</p>
+        <p>Стол: Party Hall · Квест: Гарри Поттер</p>
+        <p>Сумма: 16 100 ₽</p>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
